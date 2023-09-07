@@ -3,6 +3,7 @@ package tracker
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -79,9 +80,13 @@ func (wt *WebtorrentTracker) Run() error {
 	fiberApp.Get("/", websocket.New(wt.handleWebSocketMessages))
 
 	if !utils.FileExists(wt.KeyFile) || !utils.FileExists(wt.CertFile) {
+		log.Printf("Starting tracker on ws://%s:%d\n", wt.Host, wt.Port)
+
 		utils.LogDebug("Starting tracker without TLS")
 		fiberApp.Listen(fmt.Sprintf("%s:%d", wt.Host, wt.Port))
 	} else {
+		log.Printf("Starting tracker on wss://%s:%d\n", wt.Host, wt.Port)
+
 		fiberApp.ListenTLS(fmt.Sprintf("%s:%d", wt.Host, wt.Port), wt.CertFile, wt.KeyFile)
 	}
 
